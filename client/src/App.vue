@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { useColorMode } from '@vueuse/core'
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
 import { Icon } from '@iconify/vue'
 import {
@@ -18,14 +18,17 @@ import {
 } from '@/components/ui/navigation-menu'
 import { Button } from '@/components/ui/button'
 import { movePage, callAPI } from "@/lib/common.ts"
+import Cookies from 'js-cookie'
 
-let token = ''
+
+const token = ref('')
 const route = useRoute()
 const hideHeader = computed(() => Boolean(route.meta?.hideHeader))
 const mode = useColorMode()
 
-cookieStore.get('X-Auth-Token').then((c) => {
-  token = c?.value || ''
+
+onMounted(() => {
+  token.value = Cookies.get('X-Auth-Token') || ''
 })
 
 function logout() {

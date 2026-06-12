@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 export function movePage(s: string) {
-    router.push(s)
+    router.push(`/app${s}`)
 }
 
 export function callAPI(path: string, method: string) {
