@@ -1,26 +1,36 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-
 const routes = [
-  {
-    path: '/',
-    name: 'home-alt',
-    component: () => import('@/views/Home.vue')
-  },
-  {
-    name: 'home',
-    path: '/home',
-    component: () => import('@/views/Home.vue')
-  },
-  {
-    name: 'not-found',
-    path: '/:pathMatch(.*)*',
-    component: () => import('@/views/NotFound.vue')
-  },
+    {
+        path: '/',
+        name: 'Home',
+        component: () => import('@/views/Home.vue'),
+    },
+    {
+        path: '/login',
+        name: 'Login',
+        component: () => import('@/views/Login.vue'),
+        meta: { hideHeader: true }
+    },
+    {
+        path: '/sign-up',
+        name: 'Sign Up',
+        component: () => import('@/views/SignUp.vue'),
+        meta: { hideHeader: true }
+    },
+    {
+        path: '/users/:id(\\d+)',
+        name: 'User Profile',
+        component: () => import('@/views/UserProfile.vue'),
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'Not Found',
+        component: () => import('@/views/404.vue'),
+    }
 ]
 
-
 export const router = createRouter({
-  history: createWebHistory('/app'),
-  routes,
+    history: createWebHistory(import.meta.env.BASE_URL),
+    routes,
 })
