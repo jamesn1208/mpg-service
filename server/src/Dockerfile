@@ -16,4 +16,6 @@ RUN cd "$WORKDIR" && \
 
 COPY --chmod=555 . "$WORKDIR"
 
+EXPOSE 8080
+
 CMD ["python", "api/main.py"]

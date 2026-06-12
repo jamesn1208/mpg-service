@@ -17,5 +17,6 @@ export default defineConfig({
   },
   server: {
     allowedHosts: ['james-server']
-  }
+  },
+  base: "/app"
 })

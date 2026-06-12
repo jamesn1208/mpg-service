@@ -38,6 +38,9 @@ APP = FastAPI(
     description=pyproject['project']['description'],
     version=pyproject['project']['version'],
     lifespan=lifespan,
+    docs_url="/api/docs",
+    openapi_url="/api/openapi.json",
+    redoc_url="/api/redoc",
     swagger_ui_parameters={"defaultModelsExpandDepth": -1}
 )
 

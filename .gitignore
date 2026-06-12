@@ -1,0 +1,20 @@
+# IDEs
+.idea/
+**/.idea/
+
+# Test data
+db_data/
+
+# LOCAL secrets
+**/secrets.env
+
+# Package management
+**/*.lock
+**/*-lock.json
+
+# Language specific buildables
+server/src/.venv/
+client/node_modules/
+
+# Caches
+**/__pycache__/

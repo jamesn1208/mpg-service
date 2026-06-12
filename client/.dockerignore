@@ -1,0 +1,10 @@
+.editorconfig
+.gitattributes
+.idea/
+node_modules/
+.dockerignore
+.prettierrc.json
+.oxlintrc.json
+eslint.config.ts
+package-lock.json
+*.md
