@@ -1,0 +1,42 @@
+name: fuel-service
+
+services:
+  api:
+    build:
+      context: src/
+      dockerfile: Dockerfile
+      network: host
+    image: fuel-service/api:latest
+    ports:
+      - "8080:8080"
+    restart: "unless-stopped"
+    env_file:
+      - env/secrets.env
+      - env/config.env
+    networks:
+      - api-network
+    depends_on:
+      - database
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8080/api/v1/health/liveness', timeout=1)"]
+      interval: 1m
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  database:
+    image: postgres:alpine
+    restart: "unless-stopped"
+    env_file:
+      - env/secrets.env
+      - env/config.env
+    ports:
+      - "5433:5432"
+    networks:
+      - api-network
+    volumes:
+      - ./db_data:/var/lib/postgresql/18/docker
+
+networks:
+  api-network:
+    driver: bridge

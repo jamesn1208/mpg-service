@@ -1,0 +1,88 @@
+from fastapi import APIRouter, Response
+
+from . import service, schemas
+from api.core.deps.database import DB_SESSION
+from api.core.deps.auth import USER_ID
+from api.core.schemas import ActionResponse
+
+router = APIRouter(prefix='/users',
+                   tags=['Users'])
+
+
+async def set_auth_cookie(response: Response,
+                          token: str) -> None:
+    """
+    Sets the X-Auth-Token cookie to the provided value.
+
+    :param response: Response object to apply the cookie to.
+    :param token: The token value to set the cookie to.
+    :return: Nothing.
+    """
+    response.set_cookie(key='X-Auth-Token',
+                        value=token,
+                        httponly=True,
+                        samesite='strict',
+                        expires=2628000)  # 1 month
+
+
+@router.post('/login', status_code=200)
+async def login(user: schemas.UserAuth,
+                session: DB_SESSION,
+                response: Response) -> schemas.UserToken:
+    data = await service.login(user=user,
+                               session=session)
+    # Set auth cookie
+    await set_auth_cookie(token=data.token,
+                          response=response)
+    return data
+
+
+@router.post('/logout')
+async def logout(user_id: USER_ID,
+                 session: DB_SESSION,
+                 response: Response) -> ActionResponse:
+    # Clear auth cookie
+    await set_auth_cookie(token="",
+                          response=response)
+    return await service.logout(user_id=user_id,
+                                session=session)
+
+
+@router.post('', status_code=201)
+async def create_user(user: schemas.UserAuth,
+                      session: DB_SESSION,
+                      response: Response) -> schemas.UserToken:
+    data = await service.create_user(user=user,
+                                     session=session)
+    # Set auth cookie
+    await set_auth_cookie(token=data.token,
+                          response=response)
+    return data
+
+
+@router.delete('')
+async def delete_own_user(session: DB_SESSION,
+                          user_id: USER_ID,
+                          response: Response) -> ActionResponse:
+    # Clear auth cookie
+    await set_auth_cookie(token="",
+                          response=response)
+
+    return await service.delete_user(user_id=user_id,
+                                     session=session)
+
+
+@router.patch('')
+async def update_own_user(user: schemas.UserUpdate,
+                          session: DB_SESSION,
+                          user_id: USER_ID) -> ActionResponse:
+    return await service.update_user(user_id=user_id,
+                                     user=user,
+                                     session=session)
+
+
+@router.get('')
+async def get_own_user_info(session: DB_SESSION,
+                            user_id: USER_ID) -> schemas.User:
+    return await service.get_user(user_id=user_id,
+                                  session=session)
