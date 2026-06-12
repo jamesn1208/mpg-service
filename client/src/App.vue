@@ -61,9 +61,9 @@ function logout() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" class="z-50 min-w-[140px]">
           <DropdownMenuItem v-if="user_id == 0" @click="movePage(router, '/login')" class="hover:cursor-pointer">Login</DropdownMenuItem>
-          <DropdownMenuItem v-if="user_id > 0" @click="movePage(router, '/create')" class="hover:cursor-pointer">New Log</DropdownMenuItem>
+          <DropdownMenuItem v-if="user_id > 0" @click="movePage(router, '/log')" class="hover:cursor-pointer">New Log</DropdownMenuItem>
           <DropdownMenuItem v-if="user_id > 0" @click="movePage(router, `/profile`)" class="hover:cursor-pointer">Profile</DropdownMenuItem>
-          <DropdownMenuItem v-if="user_id > 0" @click="logout()" class="hover:cursor-pointer">Logout</DropdownMenuItem>
+          <DropdownMenuItem v-if="user_id > 0" @click="logout()" class="hover:cursor-pointer" variant="destructive">Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <DropdownMenu>
