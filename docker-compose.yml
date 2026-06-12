@@ -55,7 +55,7 @@ services:
     env_file:
       - server/env/secrets.env
       - server/env/config.env
-    ports:
+    ports:  # TODO: Change this to 'expose' for final release, so we can only access database internally
       - "5433:5432"
     networks:
       - proxied-network
