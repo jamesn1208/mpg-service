@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Fuel } from "lucide-vue-next"
 import LoginForm from "@/components/LoginForm.vue"
-document.title = 'MPG Service | Login'
 
+document.title = 'MPG Service | Login'
 </script>
 
 <template>

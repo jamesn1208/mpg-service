@@ -13,6 +13,12 @@ const routes = [
         meta: { hideHeader: true }
     },
     {
+        path: '/log',
+        name: 'Log',
+        // @ts-ignore
+        component: () => import('@/views/Log.vue')
+    },
+    {
         path: '/browse',
         name: 'Browse',
         component: () => import('@/views/Browse.vue')
@@ -24,7 +30,7 @@ const routes = [
         meta: { hideHeader: true }
     },
     {
-        path: '/users/:id(\\d+)',
+        path: '/profile',
         name: 'User Profile',
         component: () => import('@/views/UserProfile.vue'),
     },

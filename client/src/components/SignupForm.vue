@@ -18,51 +18,37 @@ import {
 import { Input } from '@/components/ui/input'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
+import {
+  callAPI,
+  movePage,
+  sleep
+} from "@/lib/common.ts";
 
 const router = useRouter()
 
 const handleSubmit = (e: Event) => {
-  let name_array = (e.target as HTMLFormElement).name.value.split(' ')
   const password_regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!#%*?&])[A-Za-z\d@$#!%*?&]{8,}$/
   if (!password_regex.test((e.target as HTMLFormElement).password.value)) {
     toast('Failure', { description: 'Password does not meet complexity requirements.' })
     return
   }
-  if (name_array.length < 2) {
-    toast('Failure', { description: 'Please enter both a first and last name.' })
-    return
-  }
 
-  fetch('http://localhost:3333/users', {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      first_name: name_array[0],
-      last_name: name_array[name_array.length - 1],
-      email: (e.target as HTMLFormElement).email.value,
-      password: (e.target as HTMLFormElement).password.value,
-    }),
+  callAPI(
+      '/api/v1/users',
+      'POST',
+      {
+        username: (e.target as HTMLFormElement).username.value,
+        password: (e.target as HTMLFormElement).password.value,
+      }
+  ).then((data) => {
+    toast('Success', { description: 'Account created.' })
+    localStorage.setItem('user_id', data.id)
+    sleep(2)
+    movePage(router, '/')
+  }).catch((e) => {
+    toast.error('Failure', {description: e.toString()})
   })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error_message) {
-          throw new Error(data.error_message)
-        }
-
-        localStorage.setItem('user_id', data.user_id)
-        toast('Success', { description: 'Account created.' })
-      })
-      .then(() => new Promise(f => setTimeout(f, 1000)))
-      .then(() => router.push('/'))
-      .catch(reason => {
-        console.error(reason)
-        toast('Failure', { description: reason.toString() })
-      })
 }
-
 
 const props = defineProps<{
   class?: HTMLAttributes["class"]
@@ -77,26 +63,20 @@ const props = defineProps<{
           Create your account
         </CardTitle>
         <CardDescription>
-          Enter your email below to create your account
+          Enter a username below to create your account
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form @submit.prevent="handleSubmit">
           <FieldGroup>
             <Field>
-              <FieldLabel for="name">
-                Full Name
-              </FieldLabel>
-              <Input id="name" type="text" placeholder="John Doe" required />
-            </Field>
-            <Field>
-              <FieldLabel for="email">
-                Email
+              <FieldLabel for="username">
+                Username
               </FieldLabel>
               <Input
-                id="email"
-                type="email"
-                placeholder="mail@example.com"
+                id="username"
+                type="text"
+                placeholder="jon_da_killa132"
                 required
               />
             </Field>
@@ -121,7 +101,10 @@ const props = defineProps<{
                 Create Account
               </Button>
               <FieldDescription class="text-center">
-                Already have an account? <a href="/login">Sign in</a>
+                Already have an account?
+              <RouterLink to="/login">
+                Login
+              </RouterLink>
               </FieldDescription>
             </Field>
           </FieldGroup>

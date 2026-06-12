@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { GalleryVerticalEnd } from "lucide-vue-next"
-
+import { Fuel } from "lucide-vue-next"
 import SignupForm from "@/components/SignupForm.vue"
+
 document.title = 'MPG Service | Sign Up'
 </script>
 
@@ -10,9 +10,9 @@ document.title = 'MPG Service | Sign Up'
     <div class="flex w-full max-w-sm flex-col gap-6">
       <a href="/" class="flex items-center gap-2 self-center font-medium">
         <div class="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-          <GalleryVerticalEnd class="size-4" />
+          <Fuel class="size-4" />
         </div>
-        Auctionary
+        MPG Service
       </a>
       <SignupForm />
     </div>

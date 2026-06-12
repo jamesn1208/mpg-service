@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue"
 import { cn } from "@/lib/utils"
-import { callAPI, movePage, sleep } from "@/lib/common"
+import {
+  callAPI,
+  movePage,
+  sleep
+} from "@/lib/common"
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -25,27 +29,21 @@ const router = useRouter()
 
 
 const handleSubmit = (e: Event) => {
-  let data
-
-  try {
-    data = callAPI(
-        '/api/v1/users/login',
-        'POST',
-        {
-          username: (e.target as HTMLFormElement).username.value,
-          password: (e.target as HTMLFormElement).password.value,
-        }
-    )
-  } catch (e) {
-    toast.error('Failure', {description: e as string})
-    return
-  }
-
-  toast('Success', { description: 'Logged in' })
-  localStorage.setItem('user_id', data.id)
-
-  sleep(2)
-  movePage(router, '/')
+  callAPI(
+      '/api/v1/users/login',
+      'POST',
+      {
+        username: (e.target as HTMLFormElement).username.value,
+        password: (e.target as HTMLFormElement).password.value,
+      }
+  ).then((data) => {
+    toast('Success', { description: 'Logged in' })
+    localStorage.setItem('user_id', data.id)
+    sleep(2)
+    movePage(router, '/')
+  }).catch((e) => {
+    toast.error('Failure', {description: e.toString()})
+  })
 }
 
 const props = defineProps<{
@@ -90,9 +88,9 @@ const props = defineProps<{
               </Button>
               <FieldDescription class="text-center">
                 Don't have an account?
-                <a href="/sign-up">
+                <RouterLink to="/sign-up">
                   Sign up
-                </a>
+                </RouterLink>
               </FieldDescription>
             </Field>
           </FieldGroup>
