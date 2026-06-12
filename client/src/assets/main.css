@@ -1,17 +1,8 @@
-@import './base.css';
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --animate-spin: spin 3s linear infinite;
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-}
+@import './base.css';
 
 :root {
   --background: 0 0% 100%;

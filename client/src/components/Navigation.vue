@@ -10,7 +10,7 @@ import {
 </script>
 
 <template>
-  <div class="top-0">
+  <div class="sticky top-0 z-50 w-full bg-background border-b">
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
@@ -23,4 +23,3 @@ import {
     </NavigationMenu>
   </div>
 </template>
-
