@@ -13,6 +13,11 @@ const routes = [
         meta: { hideHeader: true }
     },
     {
+        path: '/browse',
+        name: 'Browse',
+        component: () => import('@/views/Browse.vue')
+    },
+    {
         path: '/sign-up',
         name: 'Sign Up',
         component: () => import('@/views/SignUp.vue'),

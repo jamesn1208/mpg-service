@@ -1,15 +1,16 @@
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
-export function movePage(s: string) {
-    router.push(`/app${s}`)
+export function movePage(router: any, s: string) {
+    router.push(s)
 }
 
-export function callAPI(path: string, method: string) {
+export function sleep(s: number) : Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, s * 1000));
+}
+
+export function callAPI(path: string, method: string, payload: any = {}) : any {
     fetch(`${window.location.origin}${path}`, {
         method: method,
         credentials: 'include',
+        body: JSON.stringify(payload),
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'

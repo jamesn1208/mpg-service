@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useColorMode } from '@vueuse/core'
 import { computed, ref, onMounted } from 'vue'
 import { toast } from 'vue-sonner'
@@ -13,16 +13,16 @@ import {
 import {
   NavigationMenu,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList
 } from '@/components/ui/navigation-menu'
 import { Button } from '@/components/ui/button'
-import { movePage, callAPI } from "@/lib/common.ts"
+import { movePage, callAPI } from "@/lib/common"
 import Cookies from 'js-cookie'
 
 
 const token = ref('')
 const route = useRoute()
+const router = useRouter()
 const hideHeader = computed(() => Boolean(route.meta?.hideHeader))
 const mode = useColorMode()
 
@@ -47,9 +47,9 @@ function logout() {
   <div v-if="!hideHeader" class="flex w-full py-4 px-6 h-24 items-center justify-between border-b border-b-secondary">
     <NavigationMenu class="h-full">
       <NavigationMenuList class="h-full flex items-center">
-        <a class="mr-5 pr-4 font-bold text-2xl" href="/">MPG Service</a>
+        <RouterLink class="mr-5 pr-4 font-bold text-2xl" to="/">MPG Service</RouterLink>
         <NavigationMenuItem>
-          <NavigationMenuLink href='/browse' class="text-base pr-5 pl-5">Browse</NavigationMenuLink>
+          <RouterLink to="/browse" class="text-base pr-5 pl-5">Browse</RouterLink>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
@@ -60,9 +60,9 @@ function logout() {
           <font-awesome-icon icon="fa-solid fa-circle-user" class="hover:scale-110 transition-all fade-in-out mr-4 text-2xl hover:cursor-pointer"/>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" class="z-50 min-w-[140px]">
-          <DropdownMenuItem v-if="!token" @click="movePage('/login')" class="hover:cursor-pointer">Login</DropdownMenuItem>
-          <DropdownMenuItem v-if="token" @click="movePage('/create')" class="hover:cursor-pointer">New Log</DropdownMenuItem>
-          <DropdownMenuItem v-if="token" @click="movePage(`/profile`)" class="hover:cursor-pointer">Profile</DropdownMenuItem>
+          <DropdownMenuItem v-if="!token" @click="movePage(router, '/login')" class="hover:cursor-pointer">Login</DropdownMenuItem>
+          <DropdownMenuItem v-if="token" @click="movePage(router, '/create')" class="hover:cursor-pointer">New Log</DropdownMenuItem>
+          <DropdownMenuItem v-if="token" @click="movePage(router, `/profile`)" class="hover:cursor-pointer">Profile</DropdownMenuItem>
           <DropdownMenuItem v-if="token" @click="logout()" class="hover:cursor-pointer">Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

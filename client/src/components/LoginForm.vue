@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue"
 import { cn } from "@/lib/utils"
+import { callAPI, movePage, sleep } from "@/lib/common"
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -19,37 +20,33 @@ import { Input } from '@/components/ui/input'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 
+
 const router = useRouter()
 
+
 const handleSubmit = (e: Event) => {
-  fetch('http://localhost:3333/login', {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email: (e.target as HTMLFormElement).email.value,
-      password: (e.target as HTMLFormElement).password.value,
-    }),
-  })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error_message) {
-          throw new Error(data.error_message)
+  let data
+
+  try {
+    data = callAPI(
+        '/api/v1/users/login',
+        'POST',
+        {
+          username: (e.target as HTMLFormElement).username.value,
+          password: (e.target as HTMLFormElement).password.value,
         }
+    )
+  } catch (e) {
+    toast.error('Failure', {description: e as string})
+    return
+  }
 
-        localStorage.setItem('user_id', data.user_id)
-        toast('Success', { description: 'Logged in' })
-      })
-      .then(() => new Promise(f => setTimeout(f, 1000)))
-      .then(() => router.push('/').then(() => {window.location.reload()}))
-      .catch(reason => {
-        console.error(reason)
-        toast('Failure', { description: reason.toString() })
-      })
+  toast('Success', { description: 'Logged in' })
+  localStorage.setItem('user_id', data.id)
+
+  sleep(2)
+  movePage(router, '/')
 }
-
 
 const props = defineProps<{
   class?: HTMLAttributes["class"]
@@ -62,20 +59,20 @@ const props = defineProps<{
       <CardHeader class="text-center">
         <CardTitle>Login to your account</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account
+          Enter your username below to login to your account
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form @submit.prevent="handleSubmit">
           <FieldGroup>
             <Field>
-              <FieldLabel for="email">
-                Email
+              <FieldLabel for="username">
+                Username
               </FieldLabel>
               <Input
-                id="email"
-                type="email"
-                placeholder="mail@example.com"
+                id="username"
+                type="text"
+                placeholder="billy_bob13"
                 required
               />
             </Field>
