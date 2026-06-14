@@ -20,8 +20,6 @@ async def get_metrics(session: AsyncSession, user_id: int) -> list[schemas.Metri
             logging.exception("Skipping this metric as error occurred in query.")
             continue
 
-        for d in data:
-            print(d)
         metrics.append(schemas.Metric(title=node.title,
                                       value=str(data),
                                       description=node.description))
