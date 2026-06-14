@@ -1,8 +1,29 @@
-from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError, NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession
+import logging
 
-from api.core.models import MPGLog
+from . import schemas, helpers, models
 
 
-async def get_metrics(session: Session) -> list[MPGLog]:
-    return list(session.execute(select(MPGLog)).scalars())
+async def get_metrics(session: AsyncSession, user_id: int) -> list[schemas.Metric]:
+    metrics: list[schemas.Metric] = []
+
+    for node in helpers.metric_queries:
+        try:
+            data = await models.get_metric(session=session,
+                                           query=node.query,
+                                           params={'user_id': user_id})
+        except NoResultFound:
+            logging.debug("No data found for this metric query, skipping.")
+            continue
+        except SQLAlchemyError:
+            logging.exception("Skipping this metric as error occurred in query.")
+            continue
+
+        for d in data:
+            print(d)
+        metrics.append(schemas.Metric(title=node.title,
+                                      value=str(data),
+                                      description=node.description))
+
+    return metrics

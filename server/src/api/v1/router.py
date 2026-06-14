@@ -15,10 +15,9 @@ v1_router.include_router(prices_router,
                          include_in_schema=False)
 v1_router.include_router(stations_router,
                          include_in_schema=False)
-v1_router.include_router(metrics_router,
-                         include_in_schema=False)
-
 # Implemented
+v1_router.include_router(metrics_router)
+
 v1_router.include_router(users_router)
 v1_router.include_router(mpg_router)
 v1_router.include_router(vehicles_router)
