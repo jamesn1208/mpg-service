@@ -1,3 +1,6 @@
+import { FAKE_USERNAMES } from "@/lib/data.ts";
+
+
 export function movePage(router: any, s: string) {
     router.push(s)
 }
@@ -38,4 +41,8 @@ export function callAPI(path: string, method: string, payload: any = {}) : Promi
             console.error(reason.toString())
             throw new Error(reason)
         })
+}
+
+export function getFakeUsername() : string {
+    return FAKE_USERNAMES[Math.floor(Math.random() * (FAKE_USERNAMES.length - 1))] as string;
 }

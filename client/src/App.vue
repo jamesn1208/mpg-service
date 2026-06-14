@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import { useRoute, useRouter } from 'vue-router'
+import {
+  useRoute,
+  useRouter
+} from 'vue-router'
 import { useColorMode } from '@vueuse/core'
-import { computed, ref, onMounted } from 'vue'
+import {
+  computed,
+  ref,
+  onMounted
+} from 'vue'
 import { toast } from 'vue-sonner'
 import { Icon } from '@iconify/vue'
 import {
@@ -16,10 +23,14 @@ import {
   NavigationMenuList
 } from '@/components/ui/navigation-menu'
 import { Button } from '@/components/ui/button'
-import { movePage, callAPI } from "@/lib/common"
+import {
+  movePage,
+  callAPI,
+  sleep
+} from "@/lib/common"
 
 
-const user_id = ref(0)
+const user_id = ref<number | null>(null)
 const route = useRoute()
 const router = useRouter()
 const hideHeader = computed(() => Boolean(route.meta?.hideHeader))
@@ -28,13 +39,25 @@ const mode = useColorMode()
 
 onMounted(() => {
   const user_id_tmp = localStorage.getItem('user_id')
-  user_id.value = user_id_tmp != 'undefined' ? parseInt(user_id_tmp as string) : 0
+  if (user_id_tmp === null) {
+    return
+  }
+
+  const user_id_tmp_number = parseInt(user_id_tmp)
+  if (Number.isNaN(user_id_tmp_number)) {
+    return
+  }
+
+  user_id.value = user_id_tmp_number
 })
 
 function logout() {
   try {
     callAPI('/api/v1/users/logout', 'POST')
+    localStorage.removeItem('user_id')
     toast('Success', {description: 'Logged out.'})
+    sleep(2)
+    window.location.reload()
   } catch (e) {
     toast('Failure', {description: e as string})
   }
@@ -47,9 +70,17 @@ function logout() {
   <div v-if="!hideHeader" class="flex w-full py-4 px-6 h-24 items-center justify-between border-b border-b-secondary">
     <NavigationMenu class="h-full">
       <NavigationMenuList class="h-full flex items-center">
-        <RouterLink class="mr-6 px-4 py-3 font-bold text-2xl rounded-2xl hover:bg-primary-foreground transition-all fade-in-out" to="/">MPG Service</RouterLink>
+        <RouterLink
+            class="px-2 py-3 font-bold text-xl w-max lg:px-4 lg:mr-6 lg:text-2xl rounded-2xl hover:bg-primary-foreground transition-all fade-in-out"
+            to="/">
+          MPG Service
+        </RouterLink>
         <NavigationMenuItem>
-          <RouterLink to="/browse" class="text-base rounded-2xl px-4 py-3 hover:bg-primary-foreground transition-all fade-in-out">Browse</RouterLink>
+          <RouterLink
+              to="/browse"
+              class="text-base rounded-2xl px-4 py-3 hover:bg-primary-foreground transition-all fade-in-out">
+            Browse
+          </RouterLink>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
@@ -59,11 +90,11 @@ function logout() {
         <DropdownMenuTrigger as-child>
           <font-awesome-icon icon="fa-solid fa-circle-user" class="hover:scale-110 transition-all fade-in-out mr-4 text-2xl hover:cursor-pointer"/>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" class="z-50 min-w-[140px]">
-          <DropdownMenuItem v-if="user_id == 0" @click="movePage(router, '/login')" class="hover:cursor-pointer">Login</DropdownMenuItem>
-          <DropdownMenuItem v-if="user_id > 0" @click="movePage(router, '/log')" class="hover:cursor-pointer">New Log</DropdownMenuItem>
-          <DropdownMenuItem v-if="user_id > 0" @click="movePage(router, `/profile`)" class="hover:cursor-pointer">Profile</DropdownMenuItem>
-          <DropdownMenuItem v-if="user_id > 0" @click="logout()" class="hover:cursor-pointer" variant="destructive">Logout</DropdownMenuItem>
+        <DropdownMenuContent align="start" class="z-50 min-w-35">
+          <DropdownMenuItem v-if="!user_id" @click="movePage(router, '/login')" class="hover:cursor-pointer">Login</DropdownMenuItem>
+          <DropdownMenuItem v-if="user_id" @click="movePage(router, '/log')" class="hover:cursor-pointer">New Log</DropdownMenuItem>
+          <DropdownMenuItem v-if="user_id" @click="movePage(router, `/profile`)" class="hover:cursor-pointer">Profile</DropdownMenuItem>
+          <DropdownMenuItem v-if="user_id" @click="logout()" class="hover:cursor-pointer" variant="destructive">Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <DropdownMenu>
@@ -76,7 +107,7 @@ function logout() {
             <span class="sr-only">Toggle theme</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" class="z-50 min-w-[140px]">
+        <DropdownMenuContent align="start" class="z-50 min-w-35">
           <DropdownMenuItem @click="mode = 'light'" class="hover:cursor-pointer">Light</DropdownMenuItem>
           <DropdownMenuItem @click="mode = 'dark'" class="hover:cursor-pointer">Dark</DropdownMenuItem>
           <DropdownMenuItem @click="mode = 'auto'" class="hover:cursor-pointer">System</DropdownMenuItem>
@@ -87,6 +118,3 @@ function logout() {
 
   <router-view :key="route.fullPath"/>
 </template>
-
-<style>
-</style>

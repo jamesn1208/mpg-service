@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils"
 import {
   callAPI,
   movePage,
-  sleep
+  sleep,
+  getFakeUsername
 } from "@/lib/common"
 import { Button } from '@/components/ui/button'
 import {
@@ -70,7 +71,7 @@ const props = defineProps<{
               <Input
                 id="username"
                 type="text"
-                placeholder="billy_bob13"
+                :placeholder="getFakeUsername()"
                 required
               />
             </Field>

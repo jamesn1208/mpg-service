@@ -20,6 +20,7 @@ import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
 import {
   callAPI,
+  getFakeUsername,
   movePage,
   sleep
 } from "@/lib/common.ts";
@@ -76,7 +77,7 @@ const props = defineProps<{
               <Input
                 id="username"
                 type="text"
-                placeholder="jon_da_killa132"
+                :placeholder="getFakeUsername()"
                 required
               />
             </Field>
