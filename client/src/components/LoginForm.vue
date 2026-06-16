@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
+import {
+  type HTMLAttributes,
+  ref,
+  type Ref
+} from "vue"
 import { cn } from "@/lib/utils"
 import {
   callAPI,
@@ -27,15 +31,22 @@ import { toast } from 'vue-sonner'
 
 
 const router = useRouter()
+const username: Ref<string | number | undefined> = ref(undefined)
+const password: Ref<string | number | undefined> = ref(undefined)
 
 
-const handleSubmit = (e: Event) => {
+const handleSubmit = () => {
+  if (typeof username.value != "string" || typeof password.value != "string") {
+    toast.info('Information', {description: "You must fill in the username & password fields to login."})
+    return
+  }
+
   callAPI(
       '/api/v1/users/login',
       'POST',
       {
-        username: (e.target as HTMLFormElement).username.value,
-        password: (e.target as HTMLFormElement).password.value,
+        username: username.value as string,
+        password: password.value as string,
       }
   ).then((data) => {
     toast('Success', { description: 'Logged in' })
@@ -71,6 +82,7 @@ const props = defineProps<{
               <Input
                 id="username"
                 type="text"
+                v-model="username"
                 :placeholder="getFakeUsername()"
                 required
               />
@@ -81,7 +93,12 @@ const props = defineProps<{
                   Password
                 </FieldLabel>
               </div>
-              <Input id="password" type="password" required />
+              <Input
+                  id="password"
+                  type="password"
+                  v-model="password"
+                  required
+              />
             </Field>
             <Field>
               <Button type="submit" class="hover:cursor-pointer">

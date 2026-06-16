@@ -7,7 +7,7 @@ from sys import stdout
 import logging
 
 from api.core.router import router
-from api.core import config, models, handlers
+from api.core import config, models, handlers, middleware
 
 
 logging.basicConfig(level=config.LOGGING_LEVEL,
@@ -44,6 +44,7 @@ APP = FastAPI(
     swagger_ui_parameters={"defaultModelsExpandDepth": -1}
 )
 
+middleware.register(APP)
 handlers.register(APP)
 APP.include_router(router)
 

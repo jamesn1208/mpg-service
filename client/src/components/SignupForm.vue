@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
+import {
+  type HTMLAttributes,
+  ref,
+  type Ref
+} from "vue"
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,10 +30,18 @@ import {
 } from "@/lib/common.ts";
 
 const router = useRouter()
+const username: Ref<string | number | undefined> = ref(undefined)
+const password: Ref<string | number | undefined> = ref(undefined)
 
-const handleSubmit = (e: Event) => {
+
+const handleSubmit = () => {
+  if (typeof username.value != "string" || typeof password.value != "string") {
+    toast.info('Information', {description: "You must fill in the username & password fields to create your account."})
+    return
+  }
+
   const password_regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!#%*?&])[A-Za-z\d@$#!%*?&]{8,}$/
-  if (!password_regex.test((e.target as HTMLFormElement).password.value)) {
+  if (!password_regex.test(password.value)) {
     toast('Failure', { description: 'Password does not meet complexity requirements.' })
     return
   }
@@ -38,8 +50,8 @@ const handleSubmit = (e: Event) => {
       '/api/v1/users',
       'POST',
       {
-        username: (e.target as HTMLFormElement).username.value,
-        password: (e.target as HTMLFormElement).password.value,
+        username: username.value,
+        password: password.value,
       }
   ).then((data) => {
     toast('Success', { description: 'Account created.' })

@@ -67,11 +67,11 @@ function logout() {
 <template>
   <Toaster />
 
-  <div v-if="!hideHeader" class="flex w-full py-4 px-6 h-24 items-center justify-between border-b border-b-secondary">
+  <div v-if="!hideHeader" class="flex w-full py-4 px-4 h-24 items-center justify-between border-b border-b-secondary">
     <NavigationMenu class="h-full">
       <NavigationMenuList class="h-full flex items-center">
         <RouterLink
-            class="px-2 py-3 font-bold text-xl w-max lg:px-4 lg:mr-6 lg:text-2xl rounded-2xl hover:bg-primary-foreground transition-all fade-in-out"
+            class="pr-2 py-3 font-bold text-xl w-max lg:px-4 lg:mr-6 lg:text-2xl rounded-2xl hover:bg-primary-foreground transition-all fade-in-out"
             to="/">
           MPG Service
         </RouterLink>

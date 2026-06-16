@@ -4,6 +4,6 @@
 
 <template>
   <div class="flex w-full">
-    <span class="border-t-3 border-accent w-full"></span>
+    <span class="border-t-3 border-border w-full"></span>
   </div>
 </template>

@@ -17,12 +17,19 @@ function extractFailReason(res: any) : string {
     return `HTTP ${res.status}: ${res.statusText}`;
 }
 
-export async function callAPI(path: string, method: string, payload: any = {}): Promise<any> {
+export async function callAPI(path: string, method: string, payload: object | null = null): Promise<any> {
+    let base_url: string
+    base_url = window.location.origin
+
+    if (window.location.port != "8080") {
+        base_url = 'http://' + window.location.hostname + ':8080'
+    }
+
     try {
-        const res = await fetch(`${window.location.origin}${path}`, {
+        const res = await fetch(`${base_url}${path}`, {
             method: method,
             credentials: 'include',
-            body: JSON.stringify(payload),
+            body: payload != null ? JSON.stringify(payload) : undefined,
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'

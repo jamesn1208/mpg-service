@@ -35,15 +35,16 @@ metric_queries = [
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
+    # TODO: Fix this, im fairly sure its g/km in database
     MetricQuery(title='Total CO²',
                 description='The total amount of CO² released for all logged vehicles.',
                 query=select(
-                    func.concat(func.sum(MPGLog.miles * Vehicles.emissions), "KG") # TODO: Fix this, im fairly sure its g/km in database
+                    func.concat(func.round(func.cast(func.sum(MPGLog.miles * Vehicles.emissions), Numeric), literal(0)), "kg")
                 ).join(Vehicles)
                 .where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
-    # TODO: The below values shouldn't be integers, are more likely to be floats?
+    # TODO: The below p/L values shouldn't be integers, are more likely to be floats?
     MetricQuery(title='Lowest p/L',
                 description='The lowest p/L you have paid for fuel for any vehicle.',
                 query=select(
