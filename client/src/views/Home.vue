@@ -8,23 +8,34 @@ import {
 import { toast } from "vue-sonner"
 import { Skeleton } from "@/components/ui/skeleton";
 import { callAPI } from "@/lib/common.ts"
+import { useAuthStore } from "@/stores/auth.ts";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Icon } from '@iconify/vue';
 
 document.title = 'MPG Service | Home'
 const data: Ref<any[] | null> = ref(null)
+const auth = useAuthStore()
+
+const populateData = () => {
+  if (!auth.isLoggedIn) {
+    return
+  }
+
+  callAPI('/api/v1/metrics', 'GET')
+      .then((json) => {
+        data.value = json
+      }).catch((err) => {
+    toast.error('Failure', {description: err.toString()})
+  })
+}
 
 onMounted(() => {
-  callAPI('/api/v1/metrics', 'GET')
-    .then((json) => {
-      data.value = json
-    }).catch((err) => {
-      toast.error('Failure', {description: err.toString()})
-    })
+  populateData()
 })
 </script>
 
@@ -42,7 +53,11 @@ onMounted(() => {
       <PageBreak />
       <h2 class="text-5xl mt-8 mb-4 w-full text-center">Statistics</h2>
       <div class="w-full flex justify-center">
-        <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-8 xl:grid-cols-3 xl:gap-10 mt-4 place-items-center w-full">
+        <div class="inline-flex items-center gap-2 mt-6" v-if="!auth.isLoggedIn">
+          <Icon icon="material-symbols:warning-rounded" class="scale-120 brightness-75" />
+          <h2 class="brightness-75">You are not logged in.</h2>
+        </div>
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-8 xl:grid-cols-3 xl:gap-10 mt-4 place-items-center w-full" v-if="auth.isLoggedIn">
           <!-- Skeleton placeholders -->
           <div
               v-if="data === null"

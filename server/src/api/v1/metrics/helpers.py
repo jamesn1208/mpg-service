@@ -59,7 +59,7 @@ metric_queries = [
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
-    MetricQuery(title='Number of Refuels',
+    MetricQuery(title='# of Refuels',
                 description='The number of refuel logs you have made for any vehicle.',
                 query=select(
                     func.count(MPGLog.id)
@@ -101,7 +101,7 @@ metric_queries = [
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
-    MetricQuery(title='Number of Owned Vehicles',
+    MetricQuery(title='# of Owned Vehicles',
                 description='The amount of vehicles registered with us.',
                 query=select(
                     func.count(VehicleOwnership.registration)

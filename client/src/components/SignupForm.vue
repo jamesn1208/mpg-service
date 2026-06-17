@@ -28,8 +28,10 @@ import {
   movePage,
   sleep
 } from "@/lib/common.ts";
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const auth = useAuthStore()
 const username: Ref<string | number | undefined> = ref(undefined)
 const password: Ref<string | number | undefined> = ref(undefined)
 
@@ -55,7 +57,7 @@ const handleSubmit = () => {
       }
   ).then((data) => {
     toast('Success', { description: 'Account created.' })
-    localStorage.setItem('user_id', data.id)
+    auth.login(data.id)
     sleep(2)
     movePage(router, '/')
   }).catch((e) => {

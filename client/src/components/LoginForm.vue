@@ -7,8 +7,8 @@ import {
 import { cn } from "@/lib/utils"
 import {
   callAPI,
-  movePage,
   sleep,
+  movePage,
   getFakeUsername
 } from "@/lib/common"
 import { Button } from '@/components/ui/button'
@@ -28,9 +28,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { useRouter } from 'vue-router'
 import { toast } from 'vue-sonner'
+import { useAuthStore } from '@/stores/auth'
 
 
 const router = useRouter()
+const auth = useAuthStore()
 const username: Ref<string | number | undefined> = ref(undefined)
 const password: Ref<string | number | undefined> = ref(undefined)
 
@@ -50,7 +52,7 @@ const handleSubmit = () => {
       }
   ).then((data) => {
     toast('Success', { description: 'Logged in' })
-    localStorage.setItem('user_id', data.id)
+    auth.login(data.id)
     sleep(2)
     movePage(router, '/')
   }).catch((e) => {

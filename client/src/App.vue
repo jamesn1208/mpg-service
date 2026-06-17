@@ -6,7 +6,6 @@ import {
 import { useColorMode } from '@vueuse/core'
 import {
   computed,
-  ref,
   onMounted
 } from 'vue'
 import { toast } from 'vue-sonner'
@@ -25,39 +24,27 @@ import {
 import { Button } from '@/components/ui/button'
 import {
   movePage,
-  callAPI,
-  sleep
+  callAPI
 } from "@/lib/common"
+import { useAuthStore } from '@/stores/auth'
 
 
-const user_id = ref<number | null>(null)
 const route = useRoute()
 const router = useRouter()
 const hideHeader = computed(() => Boolean(route.meta?.hideHeader))
 const mode = useColorMode()
+const auth = useAuthStore()
 
 
 onMounted(() => {
-  const user_id_tmp = localStorage.getItem('user_id')
-  if (user_id_tmp === null) {
-    return
-  }
-
-  const user_id_tmp_number = parseInt(user_id_tmp)
-  if (Number.isNaN(user_id_tmp_number)) {
-    return
-  }
-
-  user_id.value = user_id_tmp_number
+  auth.loadFromStorage()
 })
 
 function logout() {
   try {
     callAPI('/api/v1/users/logout', 'POST')
-    localStorage.removeItem('user_id')
+    auth.logout()
     toast('Success', {description: 'Logged out.'})
-    sleep(2)
-    window.location.reload()
   } catch (e) {
     toast('Failure', {description: e as string})
   }
@@ -91,10 +78,10 @@ function logout() {
           <font-awesome-icon icon="fa-solid fa-circle-user" class="hover:scale-110 transition-all fade-in-out mr-4 text-2xl hover:cursor-pointer"/>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" class="z-50 min-w-35">
-          <DropdownMenuItem v-if="!user_id" @click="movePage(router, '/login')" class="hover:cursor-pointer">Login</DropdownMenuItem>
-          <DropdownMenuItem v-if="user_id" @click="movePage(router, '/log')" class="hover:cursor-pointer">New Log</DropdownMenuItem>
-          <DropdownMenuItem v-if="user_id" @click="movePage(router, `/profile`)" class="hover:cursor-pointer">Profile</DropdownMenuItem>
-          <DropdownMenuItem v-if="user_id" @click="logout()" class="hover:cursor-pointer" variant="destructive">Logout</DropdownMenuItem>
+          <DropdownMenuItem v-if="!auth.isLoggedIn" @click="movePage(router, '/login')" class="hover:cursor-pointer">Login</DropdownMenuItem>
+          <DropdownMenuItem v-if="auth.isLoggedIn" @click="movePage(router, '/log')" class="hover:cursor-pointer">New Log</DropdownMenuItem>
+          <DropdownMenuItem v-if="auth.isLoggedIn" @click="movePage(router, `/profile`)" class="hover:cursor-pointer">Profile</DropdownMenuItem>
+          <DropdownMenuItem v-if="auth.isLoggedIn" @click="logout()" class="hover:cursor-pointer" variant="destructive">Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <DropdownMenu>

@@ -93,25 +93,25 @@ document.title = 'MPG Service | Browse'
             </div>
           </div>
           <div class="grid grid-cols-2 gap-4 w-full mt-2">
-            <div class="grid grid-cols-1 gap-0 w-full p-4 rounded-3xl bg-violet-500">
+            <div class="grid grid-cols-1 gap-0 w-full p-4 rounded-3xl bg-violet-200 dark:bg-violet-500">
               <h3 class="font-bold">MPG</h3>
               <p class="w-full place-self-center">
                 {{ log.mpg }}mi/G
               </p>
             </div>
-            <div class="grid grid-cols-1 gap-0 w-full p-4 rounded-3xl bg-violet-500">
+            <div class="grid grid-cols-1 gap-0 w-full p-4 rounded-3xl bg-violet-200 dark:bg-violet-500">
               <h3 class="font-bold">Litres</h3>
               <p class="w-full place-self-center">
                 {{ log.litres }}L
               </p>
             </div>
-            <div class="grid grid-cols-1 gap-0 w-full p-4 rounded-3xl bg-violet-500">
+            <div class="grid grid-cols-1 gap-0 w-full p-4 rounded-3xl bg-violet-200 dark:bg-violet-500">
               <h3 class="font-bold">Miles</h3>
               <p class="w-full place-self-center">
                 {{ log.miles }}mi
               </p>
             </div>
-            <div class="grid grid-cols-1 gap-0 w-full p-4 rounded-3xl bg-violet-500">
+            <div class="grid grid-cols-1 gap-0 w-full p-4 rounded-3xl bg-violet-200 dark:bg-violet-500">
               <h3 class="font-bold">Cost</h3>
               <p class="w-full place-self-center">
                 £{{ log.total_cost }}
