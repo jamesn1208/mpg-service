@@ -15,12 +15,28 @@ import {
 import { callAPI } from "@/lib/common.ts";
 import { toast } from "vue-sonner";
 import PageBreak from "@/components/PageBreak.vue"
-import {Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Icon } from '@iconify/vue';
 
 const registration: Ref<string | null> = ref(null)
 const vehicles: Ref<any[] | null> = ref(null)
 const data: Ref<any[] | null> = ref(null)
+
+
+function populateData() {
+  let path = "/api/v1/mpg"
+
+  if (typeof registration.value === "string") {
+    path = `/api/v1/mpg/${registration.value}`
+  }
+
+  callAPI(path, 'GET')
+      .then((json) => {
+        data.value = json
+      }).catch((err) => {
+    toast.error('Failure', {description: err.toString()})
+  })
+}
 
 onMounted(() => {
   // Get list of vehicles registered to the user
@@ -32,17 +48,11 @@ onMounted(() => {
   })
 
   // Get initial MPG data
-  callAPI('/api/v1/mpg', 'GET')
-    .then((json) => {
-      data.value = json
-    }).catch((err) => {
-    toast.error('Failure', {description: err.toString()})
-  })
+  populateData()
 })
 
-watch(registration, (reg: Ref<string | null>) => {
-  // Update data.value here
-  console.log(reg)
+watch(registration, (_: Ref<string | null>) => {
+  populateData()
 })
 
 document.title = 'MPG Service | Browse'

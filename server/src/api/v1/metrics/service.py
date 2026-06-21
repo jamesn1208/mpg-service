@@ -17,6 +17,7 @@ async def get_metrics(session: AsyncSession, user_id: int) -> list[schemas.Metri
             logging.debug("No data found for this metric query, skipping.")
             continue
         except SQLAlchemyError:
+            await session.rollback()
             logging.exception("Skipping this metric as error occurred in query.")
             continue
 

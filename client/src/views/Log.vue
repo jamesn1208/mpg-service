@@ -1,4 +1,18 @@
 <script setup lang="ts">
+import type { DateValue } from '@internationalized/date'
+import {
+  DateFormatter,
+  getLocalTimeZone,
+  today
+} from '@internationalized/date'
+import { CalendarIcon } from '@lucide/vue'
+import { cn } from '@/lib/utils'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -14,8 +28,10 @@ import {
   onMounted,
   ref,
   computed,
-  type Ref
+  type Ref,
+  watch
 } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   Select,
   SelectContent,
@@ -23,9 +39,20 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { callAPI } from "@/lib/common.ts";
+import {
+  callAPI,
+  movePage,
+  sleep
+} from "@/lib/common.ts";
 import { toast } from "vue-sonner";
 import { Separator } from "@/components/ui/separator";
+
+const router = useRouter();
+const defaultPlaceholder = today(getLocalTimeZone())
+const date = ref() as Ref<DateValue>
+const df = new DateFormatter('en-UK', {
+  dateStyle: 'long',
+})
 
 const vehicles: Ref<any[] | null> = ref(null)
 const registration: Ref<string | number | undefined> = ref(undefined)
@@ -33,6 +60,7 @@ const litres: Ref<string | number | undefined> = ref(undefined)
 const miles: Ref<string | number | undefined> = ref(undefined)
 const price_per_litre: Ref<string | number | undefined> = ref(undefined)
 const total_cost: Ref<string | number | undefined> = ref(undefined)
+const mpg: Ref<number | undefined> = ref(undefined)
 
 onMounted(() => {
   // Get list of vehicles registered to the user
@@ -70,12 +98,56 @@ const totalModel = computed({
   }
 })
 
+watch([total_cost, price_per_litre, litres, miles], () => {
+  if (typeof litres.value != 'number' || typeof miles.value != 'number') {
+    return
+  }
+
+  const gallons: number = litres.value / 4.546;
+  mpg.value = Math.round((miles.value / gallons) * 1e2) / 1e2;
+})
+
+
+const submit = () => {
+  if (
+      typeof litres.value != 'number' ||
+      typeof miles.value != 'number' ||
+      typeof total_cost.value != 'number' ||
+      typeof mpg.value != 'number' ||
+      typeof date.value == 'undefined' ||
+      typeof registration.value != 'string'
+  ) {
+    toast.warning('Warning', {description: "Cannot submit with missing fields."})
+    return
+  }
+
+  const payload = {
+    registration: registration.value,
+    date: date.value.toString(),
+    litres: litres.value,
+    miles: miles.value,
+    mpg: mpg.value,
+    total_cost: total_cost.value
+  }
+
+  callAPI('/api/v1/mpg', 'POST', payload)
+    .then((data) => {
+      console.log(data)
+      toast.success('Refuel log successfully submitted.')
+      sleep(2)
+      movePage(router, '/')
+    }).catch((error) => {
+      console.error(error)
+      toast.error(error.toString())
+    })
+}
+
 document.title = 'MPG Service | Log a refuel'
 </script>
 
 <template>
   <main>
-    <div class="flex flex-col justify-center items-center xl:mt-12 pb-30">
+    <div class="flex flex-col justify-center items-center xl:mt-12 pb-40">
       <div class="mt-8 w-[95%] xl:w-full flex justify-center flex-col text-center items-center">
         <Card class="w-full max-w-sm mt-4">
           <CardHeader>
@@ -89,6 +161,29 @@ document.title = 'MPG Service | Log a refuel'
             <form>
               <div class="grid grid-cols-1 w-full items-center gap-4">
                 <div class="flex flex-col space-y-1.5 items-center">
+                  <div class="flex flex-col space-y-1.5 items-center mb-6">
+                    <Label>Date</Label>
+                    <Popover v-slot="{ close }">
+                      <PopoverTrigger as-child>
+                        <Button
+                            variant="outline"
+                            :class="cn('w-60 justify-start text-left font-normal', !date && 'text-muted-foreground')"
+                        >
+                          <CalendarIcon />
+                          {{ date ? df.format(date.toDate(getLocalTimeZone())) : "Pick a date" }}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent class="w-auto p-0" align="start">
+                        <Calendar
+                            v-model="date"
+                            :default-placeholder="defaultPlaceholder"
+                            layout="month-and-year"
+                            initial-focus
+                            @update:model-value="close"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   <Label>Vehicle</Label>
                   <Select v-model="registration">
                     <SelectTrigger>
@@ -130,8 +225,12 @@ document.title = 'MPG Service | Log a refuel'
               </div>
             </form>
           </CardContent>
-          <CardFooter class="mt-2 flex flex-col gap-2">
-            <Button class="w-full">
+          <CardFooter class="mt-2 grid grid-cols-2 gap-2">
+            <div class="bg-accent p-1.5 rounded-md flex flex-cols-2 gap-1 w-full justify-center dark:brightness-75 hover:cursor-not-allowed">
+              <p>{{ mpg ? mpg : 0 }}</p>
+              <p>mi/G</p>
+            </div>
+            <Button class="w-full hover:cursor-pointer" @click.prevent="submit()">
               Submit
             </Button>
           </CardFooter>

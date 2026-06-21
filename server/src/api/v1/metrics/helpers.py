@@ -1,4 +1,4 @@
-from sqlalchemy import select, Numeric, literal
+from sqlalchemy import select, Numeric, literal, cast
 from sqlalchemy.sql import bindparam, func
 
 from api.core.models import MPGLog, Vehicles, VehicleOwnership
@@ -24,7 +24,7 @@ metric_queries = [
     MetricQuery(title='Total Spent',
                 description='The total amount of money spent on fuel for all logged vehicles.',
                 query=select(
-                    func.concat("£", func.sum(MPGLog.total_cost))
+                    func.concat("£", func.round(cast(func.sum(MPGLog.total_cost), Numeric), 2))
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
