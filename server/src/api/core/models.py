@@ -21,8 +21,8 @@ class Users(Base):
         server_onupdate=text('CURRENT_TIMESTAMP')
     )
 
-    vehicle_ownerships = relationship('VehicleOwnership', back_populates='user')
-    mpg_logs = relationship('MPGLog', back_populates='user')
+    vehicle_ownerships = relationship('VehicleOwnership', back_populates='user', cascade="all, delete-orphan")
+    mpg_logs = relationship('MPGLog', back_populates='user', cascade="all, delete-orphan")
 
 
 class Vehicles(Base):
@@ -35,8 +35,8 @@ class Vehicles(Base):
     emissions = Column(Numeric(10, 0), nullable=True)
     colour = Column(String(30), nullable=True)
 
-    vehicle_ownerships = relationship('VehicleOwnership', back_populates='vehicle')
-    mpg_logs = relationship('MPGLog', back_populates='vehicle')
+    vehicle_ownerships = relationship('VehicleOwnership', back_populates='vehicle', cascade="all, delete-orphan")
+    mpg_logs = relationship('MPGLog', back_populates='vehicle', cascade="all, delete-orphan")
 
 
 class VehicleOwnership(Base):

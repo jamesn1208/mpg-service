@@ -22,7 +22,7 @@
     "js-cookie": "^3.0.8",
     "lucide-vue-next": "^0.555.0",
     "pinia": "^3.0.4",
-    "reka-ui": "^2.9.10",
+    "reka-ui": "^2.10.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
     "uuid": "^13.0.0",
