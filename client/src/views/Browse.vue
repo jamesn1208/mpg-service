@@ -17,10 +17,12 @@ import { toast } from "vue-sonner";
 import PageBreak from "@/components/PageBreak.vue"
 import { Button } from "@/components/ui/button";
 import { Icon } from '@iconify/vue';
+import { useAuthStore } from "@/stores/auth.ts"
 
 const registration: Ref<string | null> = ref(null)
 const vehicles: Ref<any[] | null> = ref(null)
 const data: Ref<any[] | null> = ref(null)
+const auth = useAuthStore()
 
 
 function populateData() {
@@ -39,6 +41,10 @@ function populateData() {
 }
 
 onMounted(() => {
+  if (!auth.isLoggedIn) {
+    return
+  }
+
   // Get list of vehicles registered to the user
   callAPI('/api/v1/vehicles', 'GET')
     .then((json) => {
@@ -89,8 +95,16 @@ document.title = 'MPG Service | Browse'
           Clear
         </Button>
       </div>
+      <div class="mt-6 inline-flex gap-2 items-center outline-destructive outline-2 outline-dashed p-2 rounded-xl" v-if="!vehicles || vehicles.length === 0">
+        <Icon icon="material-symbols:warning-rounded"/>
+        <p class="brightness-75">You have not registered any vehicles yet!</p>
+      </div>
       <PageBreak class="mt-8 mb-8"/>
 
+      <div v-if="!auth.isLoggedIn" class="flex flex-cols-2 gap-2 justify-center items-center">
+        <Icon icon="material-symbols:warning-rounded" class="scale-120 brightness-75" />
+        <h2 class="brightness-75">You are not logged in.</h2>
+      </div>
       <div class="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-8 xl:grid-cols-3 xl:gap-10 mt-4 place-items-center w-full mb-16">
         <div
             v-for="log in data"

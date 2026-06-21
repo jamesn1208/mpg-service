@@ -91,6 +91,7 @@ const props = defineProps<{
               <Input
                 id="username"
                 type="text"
+                v-model="username"
                 :placeholder="getFakeUsername()"
                 required
               />
@@ -100,7 +101,7 @@ const props = defineProps<{
                 <FieldLabel for="password">
                   Password
                 </FieldLabel>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" required v-model="password"/>
               </Field>
               <FieldDescription>
                 Must be at least 8 characters long.<br>

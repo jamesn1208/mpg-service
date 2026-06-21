@@ -4,7 +4,6 @@ from sqlalchemy.sql import bindparam, func
 from api.core.models import MPGLog, Vehicles, VehicleOwnership
 from .schemas import MetricQuery
 
-
 # Available bind parameters:
 # 'user_id'
 
@@ -24,14 +23,14 @@ metric_queries = [
     MetricQuery(title='Total Spent',
                 description='The total amount of money spent on fuel for all logged vehicles.',
                 query=select(
-                    func.concat("£", func.round(cast(func.sum(MPGLog.total_cost), Numeric), 2))
+                    func.concat("£", func.coalesce(func.round(cast(func.sum(MPGLog.total_cost), Numeric), 2)), '0.00')
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
     MetricQuery(title='Total Miles',
                 description='The total amount of miles driven for all logged vehicles.',
                 query=select(
-                    func.concat(func.sum(MPGLog.miles), "mi")
+                    func.concat(func.coalesce(func.sum(MPGLog.miles), 0), "mi")
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
@@ -39,7 +38,7 @@ metric_queries = [
     MetricQuery(title='Total CO²',
                 description='The total amount of CO² released for all logged vehicles.',
                 query=select(
-                    func.concat(func.round(func.cast(func.sum(MPGLog.miles * Vehicles.emissions), Numeric), literal(0)), "kg")
+                    func.concat(func.coalesce(func.round(func.cast(func.sum(MPGLog.miles * Vehicles.emissions), Numeric), literal(0)), 0), "kg")
                 ).join(Vehicles)
                 .where(
                     MPGLog.user_id == bindparam('user_id')
@@ -48,14 +47,14 @@ metric_queries = [
     MetricQuery(title='Lowest p/L',
                 description='The lowest p/L you have paid for fuel for any vehicle.',
                 query=select(
-                    func.concat(func.min(MPGLog.price_per_litre), "p")
+                    func.concat(func.coalesce(func.min(MPGLog.price_per_litre), 0), "p")
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
     MetricQuery(title='Highest p/L',
                 description='The highest p/L you have paid for fuel for any vehicle.',
                 query=select(
-                    func.concat(func.max(MPGLog.price_per_litre), "p")
+                    func.concat(func.coalesce(func.max(MPGLog.price_per_litre), 0), "p")
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
@@ -69,35 +68,35 @@ metric_queries = [
     MetricQuery(title='Average £/mi',
                 description='The average cost per mile of driving for any vehicle.',
                 query=select(
-                    func.concat("£", func.round(func.cast(func.avg(MPGLog.total_cost / MPGLog.miles), Numeric), literal(2)))
+                    func.concat("£", func.coalesce(func.round(func.cast(func.avg(MPGLog.total_cost / MPGLog.miles), Numeric), literal(2)), '0.00'))
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
     MetricQuery(title='Average p/L',
                 description='The average price per litre for any vehicle.',
                 query=select(
-                    func.concat(func.round(func.cast(func.avg(MPGLog.price_per_litre), Numeric), literal(1)), "p")
+                    func.concat(func.coalesce(func.round(func.cast(func.avg(MPGLog.price_per_litre), Numeric), literal(1)), 0), "p")
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
     MetricQuery(title='Average MPG',
                 description='The average miles per gallon for any vehicle.',
                 query=select(
-                    func.concat(func.round(func.cast(func.avg(MPGLog.mpg), Numeric), literal(2)), "mi/G")
+                    func.concat(func.coalesce(func.round(func.cast(func.avg(MPGLog.mpg), Numeric), literal(2)), 0), "mi/G")
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
     MetricQuery(title='Lowest MPG',
                 description='The lowest miles per gallon for any vehicle.',
                 query=select(
-                    func.concat(func.min(MPGLog.mpg), "mi/G")
+                    func.concat(func.coalesce(func.min(MPGLog.mpg), 0), "mi/G")
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),
     MetricQuery(title='Highest MPG',
                 description='The highest miles per gallon for any vehicle.',
                 query=select(
-                    func.concat(func.max(MPGLog.mpg), "mi/G")
+                    func.concat(func.coalesce(func.max(MPGLog.mpg), 0), "mi/G")
                 ).where(
                     MPGLog.user_id == bindparam('user_id')
                 )),

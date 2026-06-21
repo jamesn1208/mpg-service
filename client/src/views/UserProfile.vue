@@ -35,6 +35,10 @@ const username: Ref<string | number | undefined> = ref(undefined);
 const data: Ref<any> = ref(undefined);
 
 onMounted(() => {
+  if (!auth.isLoggedIn) {
+    return
+  }
+
   callAPI('/api/v1/users', 'GET')
     .then((json) => {
       data.value = json;
@@ -93,7 +97,11 @@ document.title = 'MPG Service | User Profile'
       <h2 class="text-3xl font-bold mb-4">Profile</h2>
       <PageBreak/>
       <div class="mt-8">
-        <div class="flex flex-col justify-center items-center px-6 py-4 bg-primary-foreground rounded-lg">
+        <div v-if="!auth.isLoggedIn" class="flex flex-cols-2 gap-2 mt-2">
+          <Icon icon="material-symbols:warning-rounded" class="scale-120 brightness-75" />
+          <h2 class="brightness-75">You are not logged in.</h2>
+        </div>
+        <div class="flex flex-col justify-center items-center px-6 py-4 bg-primary-foreground rounded-lg" v-if="auth.isLoggedIn">
           <h3 class="text-xl">Your account</h3>
 
           <PageBreak class="mt-4 mb-4"/>

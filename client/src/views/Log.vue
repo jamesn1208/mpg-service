@@ -46,8 +46,11 @@ import {
 } from "@/lib/common.ts";
 import { toast } from "vue-sonner";
 import { Separator } from "@/components/ui/separator";
+import { useAuthStore } from "@/stores/auth.ts"
+import {Icon} from "@iconify/vue";
 
 const router = useRouter();
+const auth = useAuthStore();
 const defaultPlaceholder = today(getLocalTimeZone())
 const date = ref() as Ref<DateValue>
 const df = new DateFormatter('en-UK', {
@@ -63,6 +66,10 @@ const total_cost: Ref<string | number | undefined> = ref(undefined)
 const mpg: Ref<number | undefined> = ref(undefined)
 
 onMounted(() => {
+  if (!auth.isLoggedIn) {
+    return
+  }
+
   // Get list of vehicles registered to the user
   callAPI('/api/v1/vehicles', 'GET')
       .then((json) => {
@@ -148,7 +155,11 @@ document.title = 'MPG Service | Log a refuel'
 <template>
   <main>
     <div class="flex flex-col justify-center items-center xl:mt-12 pb-40">
-      <div class="mt-8 w-[95%] xl:w-full flex justify-center flex-col text-center items-center">
+      <div v-if="!auth.isLoggedIn" class="flex flex-cols-2 gap-2 mt-4">
+        <Icon icon="material-symbols:warning-rounded" class="scale-120 brightness-75" />
+        <h2 class="brightness-75">You are not logged in.</h2>
+      </div>
+      <div class="mt-8 w-[95%] xl:w-full flex justify-center flex-col text-center items-center" v-if="auth.isLoggedIn">
         <Card class="w-full max-w-sm mt-4">
           <CardHeader>
             <CardTitle>Log a refuel</CardTitle>
@@ -183,6 +194,10 @@ document.title = 'MPG Service | Log a refuel'
                         />
                       </PopoverContent>
                     </Popover>
+                    <div class="mt-6 inline-flex gap-2 items-center outline-destructive outline-2 outline-dashed p-2 rounded-xl" v-if="!vehicles || vehicles.length === 0">
+                      <Icon icon="material-symbols:warning-rounded"/>
+                      <p class="brightness-75">You have not registered any vehicles yet!</p>
+                    </div>
                   </div>
                   <Label>Vehicle</Label>
                   <Select v-model="registration">
