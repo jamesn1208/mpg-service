@@ -95,9 +95,9 @@ document.title = 'MPG Service | Browse'
           Clear
         </Button>
       </div>
-      <div class="mt-6 inline-flex gap-2 items-center outline-destructive outline-2 outline-dashed p-2 rounded-xl" v-if="!vehicles || vehicles.length === 0">
-        <Icon icon="material-symbols:warning-rounded"/>
-        <p class="brightness-75">You have not registered any vehicles yet!</p>
+      <div class="w-[90%] mt-6 inline-flex gap-2 items-center outline-destructive outline-2 outline-dashed p-2 rounded-xl lg:w-fit" v-if="!vehicles || vehicles.length === 0">
+        <Icon icon="material-symbols:warning-rounded" class="scale-200 xl:scale-125"/>
+        <p class="brightness-75">You have not registered any vehicles yet! <RouterLink to="/profile" class="underline">Add one here</RouterLink></p>
       </div>
       <PageBreak class="mt-8 mb-8"/>
 

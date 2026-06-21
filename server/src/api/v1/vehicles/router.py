@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from . import schemas, service
 from api.core.schemas import ActionResponse, LIMIT, OFFSET
 from api.core.deps.auth import USER_ID
+from api.core.deps.web import WEB_CLIENT
 from api.core.deps.database import DB_SESSION
 
 router = APIRouter(prefix='/vehicles',
@@ -39,3 +40,12 @@ async def add_vehicle(session: DB_SESSION,
     return await service.add_vehicle(session=session,
                                      vehicle=vehicle,
                                      user_id=user_id)
+
+
+@router.get('/lookup/{registration}', status_code=200)
+async def lookup_vehicle(_: USER_ID,
+                         client: WEB_CLIENT,
+                         registration: str) -> schemas.Vehicle:
+    # Get vehicle details from DVLA APIs
+    return await service.lookup_vehicle(registration=registration.upper().replace(' ', ''),
+                                        client=client)

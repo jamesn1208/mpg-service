@@ -30,6 +30,11 @@ const routes = [
         meta: { hideHeader: true }
     },
     {
+        path: '/new-vehicle',
+        name: 'Add a new Vehicle',
+        component: () => import('@/views/NewVehicle.vue')
+    },
+    {
         path: '/profile',
         name: 'User Profile',
         component: () => import('@/views/UserProfile.vue'),

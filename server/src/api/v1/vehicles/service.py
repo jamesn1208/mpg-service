@@ -1,7 +1,10 @@
+import logging
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import schemas, models
-from api.core.exceptions import MissingData
+from api.core import config
+from api.core.exceptions import MissingData, ActionError
 from api.core.schemas import ActionResponse
 
 
@@ -50,3 +53,44 @@ async def add_vehicle(session: AsyncSession,
 
     return ActionResponse(success=True,
                           message=f"Vehicle added successfully.")
+
+
+async def lookup_vehicle(registration: str, client: AsyncClient) -> schemas.Vehicle:
+    payload = {
+        "registrationNumber": registration
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "x-api-key": config.VES_API_KEY
+    }
+
+    try:
+        response = await client.post(url="https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles",
+                                     headers=headers,
+                                     json=payload,
+                                     timeout=15)
+
+        if response.status_code == 404:
+            raise ActionError(message="Vehicle not found.",
+                              status_code=404)
+        elif 200 > response.status_code >= 300:
+            raise RuntimeError("Unable to get vehicle data from VES DVLA API.")
+    except Exception as ex:
+        raise ActionError(message="Unable to get vehicle information from the DVLA.",
+                          status_code=500) from ex
+
+    data = response.json()
+
+    try:
+        vehicle = schemas.Vehicle(registration=registration,
+                                  make=data['make'],
+                                  colour=str(data['colour']).capitalize(),
+                                  year=data['yearOfManufacture'],
+                                  emissions=data['co2Emissions'])
+    except KeyError as e:
+        logging.exception("Failed to create Vehicle object.")
+        raise ActionError(status_code=500,
+                          message="DVLA data is partially missing.") from e
+
+    return vehicle

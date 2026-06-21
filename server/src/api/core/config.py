@@ -15,6 +15,8 @@ DB_NAME = environ["POSTGRES_DB"]
 DB_USER = environ["POSTGRES_USER"]
 DB_PASSWORD = environ["POSTGRES_PASSWORD"]
 
+VES_API_KEY = environ["VES_API_KEY"]
+
 
 def get_session_maker() -> async_sessionmaker:
     engine = create_async_engine(url=f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}",

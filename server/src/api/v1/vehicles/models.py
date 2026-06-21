@@ -67,7 +67,7 @@ async def add_vehicle(vehicle: schemas.Vehicle, user_id: int, session: AsyncSess
         await session.rollback()
 
         # Add new vehicle to the Vehicles table
-        vehicle_data = Vehicles(registration=vehicle.registration,
+        vehicle_data = Vehicles(registration=str(vehicle.registration).upper(),
                                 make=vehicle.make,
                                 emissions=vehicle.emissions,
                                 year=vehicle.year,
