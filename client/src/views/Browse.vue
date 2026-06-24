@@ -18,19 +18,28 @@ import PageBreak from "@/components/PageBreak.vue"
 import { Button } from "@/components/ui/button";
 import { Icon } from '@iconify/vue';
 import { useAuthStore } from "@/stores/auth.ts"
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
 
 const registration: Ref<string | null> = ref(null)
 const vehicles: Ref<any[] | null> = ref(null)
 const data: Ref<any[] | null> = ref(null)
+const page: Ref<number> = ref(1)
+const pageSize: Ref<number> = ref(10)
 const auth = useAuthStore()
 
 
 function populateData() {
   let path = "/api/v1/mpg"
+  const query = new URLSearchParams()
 
   if (typeof registration.value === "string") {
     path = `/api/v1/mpg/${registration.value}`
   }
+  query.set('offset', (page.value - 1).toString())
+  query.set('limit', pageSize.value.toString())
+
+  path = `${path}?${query}`
 
   callAPI(path, 'GET')
       .then((json) => {
@@ -57,7 +66,7 @@ onMounted(() => {
   populateData()
 })
 
-watch(registration, (_: Ref<string | null>) => {
+watch([pageSize, page, registration], (_: Ref<string | null | number>) => {
   populateData()
 })
 
@@ -99,11 +108,20 @@ document.title = 'MPG Service | Browse'
         <Icon icon="material-symbols:warning-rounded" class="scale-200 xl:scale-125"/>
         <p class="brightness-75">You have not registered any vehicles yet! <RouterLink to="/profile" class="underline">Add one here</RouterLink></p>
       </div>
-      <PageBreak class="mt-8 mb-8"/>
+      <div class="flex flex-col mt-6 gap-2">
+        <Label for="pagination-size">Page size</Label>
+        <Input id="pagination-size" class="w-15 text-center appearance-none font-bold" type="number" v-model="pageSize" max="500" min="1"/>
+      </div>
+      <PageBreak class="mt-6 mb-8"/>
 
       <div v-if="!auth.isLoggedIn" class="flex flex-cols-2 gap-2 justify-center items-center">
         <Icon icon="material-symbols:warning-rounded" class="scale-120 brightness-75" />
         <h2 class="brightness-75">You are not logged in.</h2>
+      </div>
+
+      <div v-if="!data || data.length === 0" class="flex flex-cols-2 gap-2 justify-center items-center">
+        <Icon icon="material-symbols:warning-rounded" class="scale-120 brightness-75" />
+        <h2 class="brightness-75">No more data.</h2>
       </div>
       <div class="grid grid-cols-1 gap-14 lg:grid-cols-2 lg:gap-8 xl:grid-cols-3 xl:gap-10 mt-4 place-items-center w-full mb-16">
         <div
@@ -143,6 +161,12 @@ document.title = 'MPG Service | Browse'
             </div>
           </div>
         </div>
+      </div>
+      <PageBreak class="mb-4"/>
+      <div class="flex flex-cols-3 gap-3 mt-2 pb-10">
+        <Button class="text-xl hover:cursor-pointer" @click.prevent="() => page -= page > 1 ? 1 : 0">&lt</Button>
+        <Input v-model="page" type="number" class="w-15 text-center appearance-none font-bold"/>
+        <Button class="text-xl hover:cursor-pointer" @click.prevent="() => page += 1">&gt</Button>
       </div>
     </div>
   </main>

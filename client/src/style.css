@@ -41,6 +41,13 @@ main {
   }
 }
 
+@layer utilities {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    @apply appearance-none;
+  }
+}
+
 @theme {
     --animate-wiggle: wiggle 1s ease-in-out infinite;
     @keyframes wiggle {

@@ -46,7 +46,7 @@ metric_queries = [
             func.concat(
                 func.coalesce(
                     func.to_char(func.sum(MPGLog.miles), 'FM9999999990.0'),
-                    '0.0`'
+                    '0.0'
                 ),
                 "mi"
             )
