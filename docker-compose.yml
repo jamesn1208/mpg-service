@@ -3,7 +3,7 @@ name: fuel-service
 services:
   proxy:
     ports:
-      - "8080:80"
+      - "80:80"
     networks:
       - proxied-network
     image: nginx:stable

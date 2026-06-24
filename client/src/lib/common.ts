@@ -21,8 +21,8 @@ export async function callAPI(path: string, method: string, payload: object | nu
     let base_url: string
     base_url = window.location.origin
 
-    if (window.location.port != "8080") {
-        base_url = 'http://' + window.location.hostname + ':8080'
+    if (window.location.port != "80") {
+        base_url = 'http://' + window.location.hostname + ':80'
     }
 
     try {

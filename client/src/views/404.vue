@@ -5,7 +5,7 @@ document.title = 'MPG Service | Not Found'
 <template>
 <div class="flex items-center justify-center">
   <div class="flex flex-col items-center justify-center gap-6 py-12">
-    <h1 class="text-9xl font-bold">
+    <h1 class="text-6xl xl:text-9xl font-bold">
       <font-awesome-icon icon="fa-solid fa-hurricane" class="animate-spin text-destructive"/>
       404
     </h1>

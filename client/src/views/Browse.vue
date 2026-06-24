@@ -66,6 +66,7 @@ onMounted(() => {
   populateData()
 })
 
+// @ts-ignore
 watch([pageSize, page, registration], (_: Ref<string | null | number>) => {
   populateData()
 })
