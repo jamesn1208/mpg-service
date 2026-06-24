@@ -77,6 +77,7 @@ async def get_all_mpg_history(limit: int,
             )
             .limit(limit)
             .offset(offset * limit)
+            .order_by(MPGLog.date.desc())
         )).scalars().all()
 
         session.expunge_all()
@@ -110,6 +111,7 @@ async def get_mpg_history_by_registration(limit: int,
             )
             .limit(limit)
             .offset(offset * limit)
+            .order_by(MPGLog.date.desc())
         )).scalars().all()
 
         session.expunge_all()
