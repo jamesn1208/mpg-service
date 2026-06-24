@@ -1,6 +1,8 @@
+import logging
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import NoResultFound, IntegrityError
-from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound, IntegrityError, SQLAlchemyError
+from sqlalchemy import select, delete
 
 from api.core.models import Vehicles, VehicleOwnership
 from . import schemas
@@ -46,6 +48,23 @@ async def get_vehicle_by_user_id_and_registration(user_id: int, registration: st
         return None
 
 
+async def get_vehicle_by_registration(registration: str, session: AsyncSession) -> Vehicles | None:
+    """
+    Get a vehicle by its registration number.
+
+    :param registration: The registration number of the vehicle.
+    :param session: The database session.
+    :return: Instance of Vehicles or None.
+    """
+    try:
+        return (await session.execute(
+            select(Vehicles).
+            join(VehicleOwnership)
+            .where(Vehicles.registration == registration))).scalar_one()
+    except NoResultFound:
+        return None
+
+
 async def add_vehicle(vehicle: schemas.Vehicle, user_id: int, session: AsyncSession) -> None:
     """
     Maps an existing vehicle to another user, or creates a new one, then maps it to the user.
@@ -80,3 +99,26 @@ async def add_vehicle(vehicle: schemas.Vehicle, user_id: int, session: AsyncSess
         await add_vehicle(vehicle=vehicle,
                           user_id=user_id,
                           session=session)
+
+
+async def unlink_vehicle(registration: str, user_id: int, session: AsyncSession) -> None:
+    """
+    Unlinks a vehicle from a user.
+
+    :param registration: The vehicle registration to unlink.
+    :param user_id: The user_id of the vehicle owner.
+    :param session: The database session.
+    :return: Nothing.
+    """
+    try:
+        await session.execute(
+            delete(VehicleOwnership)
+                .where(
+                    VehicleOwnership.user_id == user_id,
+                    VehicleOwnership.registration == registration
+                )
+            )
+        await session.flush()
+    except SQLAlchemyError:
+        logging.exception('Failed to unlink vehicle from user.')
+        raise

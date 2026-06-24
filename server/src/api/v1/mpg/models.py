@@ -67,10 +67,13 @@ async def get_all_mpg_history(limit: int,
     :return: A list of MPGLog entries.
     """
     try:
+        vehicles = (await session.execute(select(VehicleOwnership.registration).where(VehicleOwnership.user_id == user_id))).scalars().all()
         data = (await session.execute(
             select(MPGLog)
             .where(
                 MPGLog.user_id == user_id
+            ).filter(
+                MPGLog.registration.in_(vehicles)
             )
             .limit(limit)
             .offset(offset * limit)

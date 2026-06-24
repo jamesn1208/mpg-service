@@ -94,3 +94,56 @@ async def lookup_vehicle(registration: str, client: AsyncClient) -> schemas.Vehi
                           message="DVLA data is partially missing.") from e
 
     return vehicle
+
+
+async def update_vehicle(session: AsyncSession,
+                         new_data: schemas.VehicleUpdate,
+                         registration: str) -> ActionResponse:
+
+    if new_data.emissions is None and new_data.make is None and new_data.year is None and new_data.colour is None:
+        raise MissingData(message="Nothing to update.")
+
+    vehicle = await models.get_vehicle_by_registration(registration=registration,
+                                                       session=session)
+
+    if vehicle is None:
+        raise MissingData(message=f"Could not locate any vehicle with registration '{registration}'.")
+
+    if (vehicle.make == new_data.make
+        and vehicle.year == new_data.year
+        and vehicle.colour == new_data.colour
+        and vehicle.emissions == new_data.emissions):
+        raise MissingData(message="Nothing to update.")
+
+    if new_data.emissions is not None:
+        vehicle.emissions = new_data.emissions
+    if new_data.year is not None:
+        vehicle.year = new_data.year
+    if new_data.colour is not None:
+        vehicle.colour = new_data.colour
+    if new_data.make is not None:
+        vehicle.make = new_data.make
+
+    await session.flush()
+
+    return ActionResponse(message='Successfully updated vehicle information.',
+                          success=True)
+
+
+async def unlink_vehicle(session: AsyncSession,
+                         user_id: int,
+                         registration: str) -> ActionResponse:
+
+    vehicle = await models.get_vehicle_by_user_id_and_registration(registration=registration,
+                                                                   user_id=user_id,
+                                                                   session=session)
+
+    if vehicle is None:
+        raise MissingData(message=f"Could not locate any vehicle with registration '{registration}' linked to your account.")
+
+    await models.unlink_vehicle(registration=registration,
+                                user_id=user_id,
+                                session=session)
+
+    return ActionResponse(message='Successfully unlinked vehicle.',
+                          success=True)

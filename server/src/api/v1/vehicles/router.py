@@ -32,6 +32,27 @@ async def get_vehicle(session: DB_SESSION,
                                      registration=registration.upper().replace(' ', ''))
 
 
+@router.patch('/{registration}', status_code=200)
+async def update_vehicle(session: DB_SESSION,
+                         new_data: schemas.VehicleUpdate,
+                         _: USER_ID,
+                         registration: str) -> ActionResponse:
+    # Update vehicle based on registration
+    return await service.update_vehicle(session=session,
+                                        new_data=new_data,
+                                        registration=registration.upper().replace(' ', ''))
+
+
+@router.delete('/{registration}', status_code=200)
+async def unlink_vehicle(session: DB_SESSION,
+                          user_id: USER_ID,
+                          registration: str) -> ActionResponse:
+    # Unlink vehicle based on registration & user_id
+    return await service.unlink_vehicle(session=session,
+                                        user_id=user_id,
+                                        registration=registration.upper().replace(' ', ''))
+
+
 @router.post('', status_code=201)
 async def add_vehicle(session: DB_SESSION,
                       user_id: USER_ID,

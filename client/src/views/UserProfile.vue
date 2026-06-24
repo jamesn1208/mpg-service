@@ -25,6 +25,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { useAuthStore } from '@/stores/auth.ts'
+import EditVehicleForm from "@/components/EditVehicleForm.vue";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -218,8 +219,17 @@ document.title = 'MPG Service | User Profile'
             </div>
             <PageBreak class="my-3"/>
             <div class="flex flex-cols-2 gap-2 mt-4 justify-items-center justify-end">
-              <Button class="hover:cursor-pointer w-24">Edit</Button>
-              <Button variant="destructive" class="hover:cursor-pointer w-24">Delete</Button>
+              <EditVehicleForm
+                :year="vehicle.year"
+                :colour="vehicle.colour"
+                :make="vehicle.make"
+                :registration="vehicle.registration"
+                :emissions="vehicle.emissions"
+              />
+              <Button variant="destructive" class="hover:cursor-pointer w-24">
+                <Icon icon="fa7-solid:chain-broken"/>
+                Unlink
+              </Button>
             </div>
           </div>
         </div>
