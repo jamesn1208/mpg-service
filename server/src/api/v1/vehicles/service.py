@@ -84,10 +84,10 @@ async def lookup_vehicle(registration: str, client: AsyncClient) -> schemas.Vehi
 
     try:
         vehicle = schemas.Vehicle(registration=registration,
-                                  make=data['make'],
-                                  colour=str(data['colour']).capitalize(),
-                                  year=data['yearOfManufacture'],
-                                  emissions=data['co2Emissions'])
+                                  make=data.get('make', ''),
+                                  colour=str(data.get('colour', '')).capitalize(),
+                                  year=data.get('yearOfManufacture', 0),
+                                  emissions=data.get('co2Emissions', 0))
     except KeyError as e:
         logging.exception("Failed to create Vehicle object.")
         raise ActionError(status_code=500,
