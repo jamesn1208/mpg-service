@@ -12,6 +12,14 @@ import {
   watch,
   onMounted,
 } from 'vue'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination'
 import { callAPI } from "@/lib/common.ts";
 import { toast } from "vue-sonner";
 import PageBreak from "@/components/PageBreak.vue"
@@ -26,10 +34,15 @@ const vehicles: Ref<any[] | null> = ref(null)
 const data: Ref<any[] | null> = ref(null)
 const page: Ref<number> = ref(1)
 const pageSize: Ref<number> = ref(10)
+const totalRecords: Ref<number> = ref(10)
 const auth = useAuthStore()
 
 
 function populateData() {
+  if (!auth.isLoggedIn) {
+    return
+  }
+
   let path = "/api/v1/mpg"
   const query = new URLSearchParams()
 
@@ -37,23 +50,25 @@ function populateData() {
     path = `/api/v1/mpg/${registration.value}`
   }
   query.set('offset', (page.value - 1).toString())
+  if (pageSize.value < 1 || pageSize.value > 250) {
+    return
+  }
   query.set('limit', pageSize.value.toString())
 
   path = `${path}?${query}`
 
   callAPI(path, 'GET')
       .then((json) => {
-        data.value = json
+        data.value = json.data
+        totalRecords.value = json.total
+        pageSize.value = json.size
+        page.value = json.page
       }).catch((err) => {
     toast.error('Failure', {description: err.toString()})
   })
 }
 
 onMounted(() => {
-  if (!auth.isLoggedIn) {
-    return
-  }
-
   // Get list of vehicles registered to the user
   callAPI('/api/v1/vehicles', 'GET')
     .then((json) => {
@@ -66,8 +81,19 @@ onMounted(() => {
   populateData()
 })
 
+watch(pageSize, (newPageSize) => {
+  if (newPageSize > 250) {
+    pageSize.value = 250
+  }
+  if (newPageSize < 1) {
+    pageSize.value = 1
+  }
+  page.value = 1
+  populateData()
+})
+
 // @ts-ignore
-watch([pageSize, page, registration], (_: Ref<string | null | number>) => {
+watch([page, registration], (_: Ref<string | null | number>) => {
   populateData()
 })
 
@@ -105,13 +131,35 @@ document.title = 'MPG Service | Browse'
           Clear
         </Button>
       </div>
-      <div class="w-[90%] mt-6 inline-flex gap-2 items-center outline-destructive outline-2 outline-dashed p-2 rounded-xl lg:w-fit" v-if="!vehicles || vehicles.length === 0">
+      <div class="w-[90%] mt-6 inline-flex gap-2 items-center outline-destructive outline-2 outline-dashed p-2 rounded-xl lg:w-fit" v-if="(!vehicles || vehicles.length === 0) && auth.isLoggedIn">
         <Icon icon="material-symbols:warning-rounded" class="scale-200 xl:scale-125"/>
         <p class="brightness-75">You have not registered any vehicles yet! <RouterLink to="/profile" class="underline">Add one here</RouterLink></p>
       </div>
       <div class="flex flex-col mt-6 gap-2">
         <Label for="pagination-size">Page size</Label>
-        <Input id="pagination-size" class="w-15 text-center appearance-none font-bold" type="number" v-model="pageSize" max="500" min="1"/>
+        <Input id="pagination-size" class="w-15 text-center appearance-none font-bold" type="number" v-model="pageSize" max="250" min="1" />
+      </div>
+      <div class="flex flex-col gap-6 mt-4">
+        <Pagination
+            v-model:page="page"
+            :items-per-page="pageSize"
+            :total="totalRecords"
+        >
+          <PaginationContent v-slot="{ items }">
+            <PaginationPrevious />
+            <template v-for="(item, index) in items" :key="index">
+              <PaginationItem
+                  v-if="item.type === 'page'"
+                  :value="item.value"
+                  :is-active="item.value === page"
+              >
+                {{ item.value }}
+              </PaginationItem>
+            </template>
+            <PaginationEllipsis v-if="items.length > 0" />
+            <PaginationNext />
+          </PaginationContent>
+        </Pagination>
       </div>
       <PageBreak class="mt-6 mb-8"/>
 
@@ -120,7 +168,7 @@ document.title = 'MPG Service | Browse'
         <h2 class="brightness-75">You are not logged in.</h2>
       </div>
 
-      <div v-if="!data || data.length === 0" class="flex flex-cols-2 gap-2 justify-center items-center">
+      <div v-if="(!data || data.length === 0) && auth.isLoggedIn" class="flex flex-cols-2 gap-2 justify-center items-center">
         <Icon icon="material-symbols:warning-rounded" class="scale-120 brightness-75" />
         <h2 class="brightness-75">No more data.</h2>
       </div>
@@ -162,12 +210,6 @@ document.title = 'MPG Service | Browse'
             </div>
           </div>
         </div>
-      </div>
-      <PageBreak class="mb-4"/>
-      <div class="flex flex-cols-3 gap-3 mt-2 pb-10">
-        <Button class="text-xl hover:cursor-pointer" @click.prevent="() => page -= page > 1 ? 1 : 0">&lt</Button>
-        <Input v-model="page" type="number" class="w-15 text-center appearance-none font-bold"/>
-        <Button class="text-xl hover:cursor-pointer" @click.prevent="() => page += 1">&gt</Button>
       </div>
     </div>
   </main>

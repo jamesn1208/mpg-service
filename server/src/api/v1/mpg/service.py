@@ -32,40 +32,50 @@ async def log_mpg(log: schemas.MPGLog,
 async def get_all_mpg_history(limit: int,
                               offset: int,
                               session: AsyncSession,
-                              user_id: int) -> list[schemas.MPGLog]:
-    data = await models.get_all_mpg_history(limit=limit,
-                                            offset=offset,
-                                            session=session,
-                                            user_id=user_id)
+                              user_id: int) -> schemas.MPGLogWrapper:
+    output = await models.get_all_mpg_history(limit=limit,
+                                              offset=offset,
+                                              session=session,
+                                              user_id=user_id)
 
-    return [
+    formatted_data = [
         schemas.MPGLog(registration=l.registration,
                        date=l.date.strftime("%Y-%m-%d"),
                        litres=l.litres,
                        mpg=l.mpg,
                        miles=l.miles,
                        total_cost=l.total_cost)
-        for l in data
+        for l in output.data
     ]
+
+    return schemas.MPGLogWrapper(total=output.total,
+                                 data=formatted_data,
+                                 page=offset + 1,
+                                 size=limit)
 
 
 async def get_mpg_history_by_registration(limit: int,
                                           offset: int,
                                           session: AsyncSession,
                                           user_id: int,
-                                          registration: str) -> list[schemas.MPGLog]:
-    data = await models.get_mpg_history_by_registration(limit=limit,
-                                                        offset=offset,
-                                                        session=session,
-                                                        user_id=user_id,
-                                                        registration=registration)
+                                          registration: str) -> schemas.MPGLogWrapper:
+    output = await models.get_mpg_history_by_registration(limit=limit,
+                                                          offset=offset,
+                                                          session=session,
+                                                          user_id=user_id,
+                                                          registration=registration)
 
-    return [
+    formatted_data = [
         schemas.MPGLog(registration=l.registration,
                        date=l.date.strftime("%Y-%m-%d"),
                        litres=l.litres,
                        mpg=l.mpg,
                        miles=l.miles,
                        total_cost=l.total_cost)
-        for l in data
+        for l in output.data
     ]
+
+    return schemas.MPGLogWrapper(total=output.total,
+                                 data=formatted_data,
+                                 page=offset + 1,
+                                 size=limit)

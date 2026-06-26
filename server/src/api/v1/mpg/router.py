@@ -13,7 +13,7 @@ router = APIRouter(prefix='/mpg',
 async def get_all_mpg_history(session: DB_SESSION,
                               user_id: USER_ID,
                               limit: LIMIT = 10,
-                              offset: OFFSET = 0) -> list[schemas.MPGLog]:
+                              offset: OFFSET = 0) -> schemas.MPGLogWrapper:
 
     return await service.get_all_mpg_history(limit=limit,
                                              offset=offset,
@@ -23,10 +23,10 @@ async def get_all_mpg_history(session: DB_SESSION,
 
 @router.get('/{registration}')
 async def get_mpg_history_by_registration(session: DB_SESSION,
-                                           user_id: USER_ID,
-                                           registration: str,
-                                           limit: LIMIT = 10,
-                                           offset: OFFSET = 0) -> list[schemas.MPGLog]:
+                                          user_id: USER_ID,
+                                          registration: str,
+                                          limit: LIMIT = 10,
+                                          offset: OFFSET = 0) -> schemas.MPGLogWrapper:
     return await service.get_mpg_history_by_registration(limit=limit,
                                                          offset=offset,
                                                          session=session,

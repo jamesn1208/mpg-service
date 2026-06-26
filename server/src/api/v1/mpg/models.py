@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.exc import NoResultFound
 from datetime import datetime
 
@@ -56,7 +56,7 @@ async def insert_mpg_log(log: schemas.MPGLog,
 async def get_all_mpg_history(limit: int,
                               offset: int,
                               session: AsyncSession,
-                              user_id: int) -> list[MPGLog]:
+                              user_id: int) -> schemas.MPGLogWrapperInt:
     """
     Get all MPG history for a given user_id with pagination.
 
@@ -64,34 +64,45 @@ async def get_all_mpg_history(limit: int,
     :param offset: The page number based on limit (0 indexed)
     :param session: The database session to use.
     :param user_id: The user_id to query against.
-    :return: A list of MPGLog entries.
+    :return: An instance of MPGLogWrapperInt.
     """
+    vehicles = (await session.execute(
+        select(VehicleOwnership.registration)
+        .where(
+            VehicleOwnership.user_id == user_id
+        )
+    )).scalars().all()
+    query = (select(MPGLog)
+    .where(
+        MPGLog.user_id == user_id
+    ).filter(
+        MPGLog.registration.in_(vehicles)
+    ))
+
     try:
-        vehicles = (await session.execute(select(VehicleOwnership.registration).where(VehicleOwnership.user_id == user_id))).scalars().all()
         data = (await session.execute(
-            select(MPGLog)
-            .where(
-                MPGLog.user_id == user_id
-            ).filter(
-                MPGLog.registration.in_(vehicles)
-            )
+            query
             .limit(limit)
             .offset(offset * limit)
             .order_by(MPGLog.date.desc())
         )).scalars().all()
-
+        count = (await session.execute(
+            select(
+                func.count()
+            ).select_from(query.subquery())
+        )).scalar()
         session.expunge_all()
 
-        return list(data)
+        return schemas.MPGLogWrapperInt(total=int(count), data=list(data))
     except NoResultFound:
-        return []
+        return schemas.MPGLogWrapperInt(total=0, data=[])
 
 
 async def get_mpg_history_by_registration(limit: int,
                                           offset: int,
                                           session: AsyncSession,
                                           user_id: int,
-                                          registration: str) -> list[MPGLog]:
+                                          registration: str) -> schemas.MPGLogWrapperInt:
     """
     Get all MPG history for a given user_id with pagination.
 
@@ -100,22 +111,27 @@ async def get_mpg_history_by_registration(limit: int,
     :param session: The database session to use.
     :param user_id: The user_id to query against.
     :param registration: The registration number to query against.
-    :return: A list of MPGLog entries.
+    :return: An instance of MPGLogWrapperInt.
     """
+    query = (select(MPGLog)
+    .where(
+        MPGLog.user_id == user_id,
+        MPGLog.registration == registration
+    ))
     try:
         data = (await session.execute(
-            select(MPGLog)
-            .where(
-                MPGLog.user_id == user_id,
-                MPGLog.registration == registration
-            )
+            query
             .limit(limit)
             .offset(offset * limit)
             .order_by(MPGLog.date.desc())
         )).scalars().all()
-
+        count = (await session.execute(
+            select(func.count())
+            .select_from(query.subquery())
+        )).scalar()
         session.expunge_all()
 
-        return list(data)
+        return schemas.MPGLogWrapperInt(total=int(count),
+                                        data=list(data))
     except NoResultFound:
-        return []
+        return schemas.MPGLogWrapperInt(total=0, data=[])

@@ -1,5 +1,8 @@
 from pydantic import BaseModel, field_validator
 from datetime import datetime
+from dataclasses import dataclass
+
+from api.core import models
 
 
 class MPGLog(BaseModel):
@@ -18,3 +21,16 @@ class MPGLog(BaseModel):
         except Exception:
             raise ValueError("Date must be in the format YYYY-MM-DD")
         return value
+
+
+class MPGLogWrapper(BaseModel):
+    total: int
+    page: int
+    size: int
+    data: list[MPGLog]
+
+
+@dataclass(frozen=True)
+class MPGLogWrapperInt:
+    total: int
+    data: list[models.MPGLog]
